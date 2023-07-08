@@ -211,7 +211,6 @@ const Circuit = () => {
     }
 
     useEffect(() => {
-
         const executeCircuit = () => {
             const inputIds = widgets.filter((widget) => widget.type === 'INPUT').map((widget) => widget.id);
             const newConnections = [...connections];
@@ -227,9 +226,10 @@ const Circuit = () => {
                 if (destWidgets && destWidgets.length > 0) {
                     for (let i = 0; i < destWidgets.length; i++) {
                         const target = destWidgets[i].dest;
-                        if (!visited[target]) {
-                            inputIds.push(target);
+                        if (visited[target]) {
+                            continue;
                         }
+                        inputIds.push(target);
 
                         const targetWidget = newWidgets[target - 1];
                         const connectionIndex = destWidgets[i].connectionIndex;
@@ -255,7 +255,7 @@ const Circuit = () => {
                                         newWidgets[targetWidget.id - 1].state = (newWidgets[targetWidget.id - 1].input1 === 1 && newWidgets[targetWidget.id - 1].input2 === 1) ? 'SET' : 'RESET';
                                     } else if (targetWidget.gateType === 'OR') {
                                         newWidgets[targetWidget.id - 1].state = (newWidgets[targetWidget.id - 1].input1 === 1 || newWidgets[targetWidget.id - 1].input2 === 1) ? 'SET' : 'RESET';
-                                    } else if (targetWidget.gateType === 'XOR') {
+                                    } else if (targetWidget.gateType === 'XOR' && newWidgets[targetWidget.id - 1].input1 !== null && newWidgets[targetWidget.id - 1].input2 !== null) {
                                         newWidgets[targetWidget.id - 1].state = (newWidgets[targetWidget.id - 1].input1 === newWidgets[targetWidget.id - 1].input2) ? 'RESET' : 'SET';
                                     }
                                     newWidgets[targetWidget.id - 1].input1 = null;
@@ -434,7 +434,7 @@ const Circuit = () => {
     };
 
     const mouseMoveHandler = (event) => {
-        const rect = event.target.getBoundingClientRect();
+        const rect = canvasRef.current.getBoundingClientRect();
         let clientX = event.clientX;
         let clientY = event.clientY;
 
@@ -644,7 +644,10 @@ const Circuit = () => {
     };
 
     return (
-        <div className={`circuit ${darkMode ? 'dark': 'light'}`}>
+        <div 
+            className={`circuit ${darkMode ? 'dark': 'light'}`}
+            onTouchMove={mouseMoveHandler}
+        >
             <canvas
                 ref={canvasRef}
                 onMouseDown={handleDragStartOrEnd}
@@ -653,7 +656,6 @@ const Circuit = () => {
                 onMouseMove={mouseMoveHandler}
                 onTouchStart={handleDragStartOrEnd}
                 onTouchEnd={handleElementDragEnd}
-                onTouchMove={mouseMoveHandler}
             />
             <div className="circuit-controls">
                 <div
