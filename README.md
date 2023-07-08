@@ -1,11 +1,7 @@
 # Logix - Logic Gate Circuit Simulator [![wakatime](https://wakatime.com/badge/user/49a4b5a3-8d9f-4ff9-95dc-67e32d20f8b4/project/7daaeec3-4d62-44cc-b164-a742f5d8f1d8.svg)](https://wakatime.com/badge/user/49a4b5a3-8d9f-4ff9-95dc-67e32d20f8b4/project/7daaeec3-4d62-44cc-b164-a742f5d8f1d8)
 Logix is a web-based logic gate circuit simulator that allows users to design and simulate digital logic circuits. It provides an intuitive interface for creating circuits using various logic gates and visualizing the circuit's behavior in real-time.
 
-<center>
-
-![Project Image](public/imgs/ss.png)
-
-</center>
+<img src="public/imgs/ss.png" width="100%" alt="UI Image">
 
 ### Live link
 [https://logicx.netlify.app/](https://logicx.netlify.app/)
