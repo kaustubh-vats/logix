@@ -667,7 +667,7 @@ const Circuit = () => {
                     onClick={handleClickOnMenu}
                 >
                     <img draggable="false" className='btn-img' src="/gates/and.png" alt="AND" />
-                    Add AND Gate
+                    AND Gate
                 </div>
                 <div
                     className='widget-btn'
@@ -677,7 +677,7 @@ const Circuit = () => {
                     onTouchEnd={handleElementDragEnd}
                 >
                     <img draggable="false" className='btn-img' src="/gates/or.png" alt="OR" />
-                    Add OR Gate
+                    OR Gate
                 </div>
                 <div
                     className='widget-btn'
@@ -687,7 +687,7 @@ const Circuit = () => {
                     onTouchEnd={handleElementDragEnd}
                 >
                     <img draggable="false" className='btn-img' src="/gates/not.png" alt="NOT" />
-                    Add NOT Gate
+                    NOT Gate
                 </div>
                 <div
                     className='widget-btn'
@@ -697,7 +697,7 @@ const Circuit = () => {
                     onTouchEnd={handleElementDragEnd}
                 >
                     <img draggable="false" className='btn-img' src="/gates/xor.png" alt="XOR" />
-                    Add XOR Gate
+                    XOR Gate
                 </div>
 
                 <div
@@ -708,7 +708,7 @@ const Circuit = () => {
                     onTouchEnd={handleElementDragEnd}
                 >
                     <div className='btn-img btn-cus'>I</div>
-                    Add Input
+                    Input
                 </div>
 
                 <div
@@ -719,7 +719,7 @@ const Circuit = () => {
                     onTouchEnd={handleElementDragEnd}
                 >
                     <div className='btn-img btn-cus'>O</div>
-                    Add Output
+                    Output
                 </div>
             </div>
 
