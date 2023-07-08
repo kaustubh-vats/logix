@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+const LOGIX_THEME = 'logix-theme';
+
 const Circuit = () => {
     const canvasRef = useRef(null);
     const gatePLaceholderRef = useRef(null);
     const widgetPlaceholderRef = useRef(null);
     const errorBoxRef = useRef(null);
+    const popupRef = useRef(null);
 
     const [widgets, setWidgets] = useState([]);
     const [connections, setConnections] = useState([]);
@@ -18,6 +21,11 @@ const Circuit = () => {
     const [xorImage, setXorImage] = useState(null);
 
     const [circuits, setCircuits] = useState({});
+
+    const [currInput, setCurrInput] = useState(1);
+    const [currOutput, setCurrOutput] = useState(1);
+
+    const [darkMode, setDarkMode] = useState(false);
 
     useEffect(() => {
         const andimage = new Image();
@@ -47,16 +55,11 @@ const Circuit = () => {
 
         myCanvas.width = window.innerWidth;
         myCanvas.height = window.innerHeight;
-        const handleResize = () => {
-            myCanvas.width = window.innerWidth;
-            myCanvas.height = window.innerHeight;
-        };
 
-        window.addEventListener('resize', handleResize);
-
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
+        const theme = localStorage.getItem(LOGIX_THEME);
+        if (theme === true || theme === 'true') {
+            setDarkMode(true);
+        }
 
     }, []);
 
@@ -64,8 +67,37 @@ const Circuit = () => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
 
+        const getColor = (color) => {
+            if(darkMode) {
+                return invertColor(color);
+            }
+            return color;
+        }
+
+        const getTempColor = (color) => {
+            if(darkMode) {
+                return invertColor(color) + '33';
+            }
+            return color + '33';
+        }
+
+        const getConnectionColor = (state) => {
+            if (state === 'SET') {
+                return getColor('#00ff00');
+            } else if (state === 'RESET') {
+                return getColor('#ff0000');
+            } else {
+                return getColor('#0000ff');
+            }
+        };
+
         // Clear the canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if(darkMode){
+            ctx.filter = 'invert(1)';
+        } else {
+            ctx.filter = 'invert(0)';
+        }
 
         // Render gates
         widgets.forEach((widget) => {
@@ -83,38 +115,42 @@ const Circuit = () => {
                 } else {
                     ctx.beginPath();
                     ctx.rect(widget.x, widget.y, widget.width, widget.height);
-                    ctx.fillStyle = 'blue';
+                    ctx.fillStyle = getColor('#0000ff');
                     ctx.fill();
                     ctx.closePath();
                 }
                 ctx.font = '12px Arial';
-                ctx.fillStyle = 'white';
-                ctx.fillText(widget.gateType, widget.x + widget.width / 2 - 12, widget.y + widget.height / 2 + 3);
+                ctx.fillStyle = '#000000';
+                ctx.fillText(widget.gateType, widget.x + widget.width / 2 - 12, widget.y + widget.height + 20);
             } else if (widget.type === 'INPUT') {
                 ctx.beginPath();
                 ctx.arc(widget.x, widget.y, widget.radius, 0, 2 * Math.PI);
-                ctx.fillStyle = (widget.state === 'SET') ? 'GREEN' : 'red';
+                ctx.fillStyle = (widget.state === 'SET') ? getColor('#00ff00') : getColor('#ff0000');
                 ctx.fill();
                 ctx.closePath();
                 ctx.font = '12px Arial';
-                ctx.fillStyle = 'white';
+                ctx.fillStyle = getColor('#ffffff');
                 ctx.fillText('I', widget.x + widget.radius / 2 - 6, widget.y + widget.radius / 2);
+                ctx.fillStyle = '#000000';
+                ctx.fillText('Input: ' + widget.inputId, widget.x + widget.radius / 2 - 22, widget.y + widget.radius / 2 + 20);
+                ctx.fillText('State: ' + (widget.state === 'SET'), widget.x + widget.radius / 2 - 22, widget.y + widget.radius / 2 + 35);
             } else if (widget.type === 'OUTPUT') {
                 ctx.beginPath();
                 ctx.arc(widget.x, widget.y, widget.radius, 0, 2 * Math.PI);
-                ctx.fillStyle = (widget.state === 'SET') ? 'GREEN' : 'red';
+                ctx.fillStyle = (widget.state === 'SET') ? getColor('#00ff00') : getColor('#ff0000');
                 ctx.fill();
                 ctx.closePath();
                 ctx.font = '12px Arial';
-                ctx.fillStyle = 'white';
+                ctx.fillStyle = getColor('#ffffff');
                 ctx.fillText('O', widget.x + widget.radius / 2 - 9, widget.y + widget.radius / 2);
+                ctx.fillStyle = '#000000';
+                ctx.fillText('Output: ' + widget.outputId, widget.x + widget.radius / 2 - 22, widget.y + widget.radius / 2 + 20);
+                ctx.fillText('State: ' + (widget.state === 'SET'), widget.x + widget.radius / 2 - 22, widget.y + widget.radius / 2 + 35);
             }
         });
 
         // Render connections
         connections.forEach((connection) => {
-            // Render connection lines
-            // Example:
             const startWidget = widgets.find((widget) => widget.id === connection.startId);
             const endWidget = widgets.find((widget) => widget.id === connection.endId);
             ctx.beginPath();
@@ -154,13 +190,25 @@ const Circuit = () => {
             ctx.beginPath();
             ctx.moveTo(tempConnection.x, tempConnection.y);
             ctx.lineTo(tempConnection.mouseX, tempConnection.mouseY);
-            ctx.strokeStyle = 'red';
+            ctx.strokeStyle = getTempColor('#0000ff');
             ctx.lineWidth = 2;
             ctx.stroke();
             ctx.closePath();
         }
-    }, [widgets, connections, tempConnection, andImage, orImage, notImage, xorImage]);
+    }, [widgets, connections, tempConnection, andImage, orImage, notImage, xorImage, darkMode]);
 
+    function invertColor(hexColor) {
+        hexColor = hexColor.replace('#', '');
+        var decimalColor = parseInt(hexColor, 16);
+        var invertedDecimalColor = decimalColor ^ 0xFFFFFF;
+        var invertedHexColor = invertedDecimalColor.toString(16);
+        while (invertedHexColor.length < 6) {
+          invertedHexColor = '0' + invertedHexColor;
+        }
+        invertedHexColor = '#' + invertedHexColor;
+      
+        return invertedHexColor;
+    }
 
     useEffect(() => {
 
@@ -231,16 +279,6 @@ const Circuit = () => {
         executeCircuit();
     }, [circuits, widgets, connections]);
 
-    const getConnectionColor = (state) => {
-        if (state === 'SET') {
-            return 'green';
-        } else if (state === 'RESET') {
-            return 'red';
-        } else {
-            return 'black';
-        }
-    };
-
     const addGate = (type, x, y) => {
         const newGate = {
             id: widgets.length + 1,
@@ -268,8 +306,10 @@ const Circuit = () => {
             type: 'INPUT',
             state: 'RESET',
             radius: 10,
+            inputId: currInput,
         };
         setWidgets((prevWidget) => [...prevWidget, newInput]);
+        setCurrInput(currInput + 1);
     };
 
     const addOutput = (x, y) => {
@@ -282,8 +322,10 @@ const Circuit = () => {
             type: 'OUTPUT',
             state: 'RESET',
             radius: 10,
+            outputId: currOutput,
         };
         setWidgets((prevWidget) => [...prevWidget, newOutput]);
+        setCurrOutput(currOutput + 1);
     };
 
     const getGateInputs = (type) => {
@@ -579,8 +621,30 @@ const Circuit = () => {
         }, 2000);
     };
 
+    const handleClickOnMenu = (event) => {
+        event.stopPropagation();
+        showError('Please drag the widget to add it to the circuit');
+    };
+
+    const showPopup = () => {
+        if (popupRef && popupRef.current && popupRef.current.style) {
+            popupRef.current.style.display = 'flex';
+        }
+    };
+
+    const hidePopup = () => {
+        if (popupRef && popupRef.current && popupRef.current.style) {
+            popupRef.current.style.display = 'none';
+        }
+    };
+
+    const toggleTheme = () => {
+        setDarkMode(!darkMode);
+        localStorage.setItem(LOGIX_THEME, !darkMode);
+    };
+
     return (
-        <div className="circuit">
+        <div className={`circuit ${darkMode ? 'dark': 'light'}`}>
             <canvas
                 ref={canvasRef}
                 onMouseDown={handleDragStartOrEnd}
@@ -598,6 +662,7 @@ const Circuit = () => {
                     onMouseUp={handleElementDragEnd}
                     onTouchStart={(event) => handleElementDragStart(event, 'AND')}
                     onTouchEnd={handleElementDragEnd}
+                    onClick={handleClickOnMenu}
                 >
                     <img draggable="false" className='btn-img' src="/gates/and.png" alt="AND" />
                     Add AND Gate
@@ -653,6 +718,60 @@ const Circuit = () => {
                 >
                     <div className='btn-img btn-cus'>O</div>
                     Add Output
+                </div>
+            </div>
+
+            <div
+                className='widget-btn help-btn btn-right'
+                onClick={showPopup}
+            >
+                <div className='rippleContainer'>
+                    <div className='rippleEffect'>
+                    </div>
+                    <div className='btn-img'>?</div>
+                </div>
+            </div>
+            <div
+                className='widget-btn help-btn btn-left'
+                onClick={toggleTheme}
+            >
+                <div className='rippleContainer'>
+                    <div className='rippleEffect'>
+                    </div>
+                    <div className='btn-img'>{darkMode ? (
+                        <img draggable="false" className='btn-img' src="/imgs/sun.png" alt="Light" />
+                    ): (
+                        <img draggable="false" className='btn-img' src="/imgs/moon.png" alt="Dark" />
+                    )}</div>
+                </div>
+            </div>
+            <div className='popup' ref={popupRef}>
+                <div className='popup-content'>
+                    <div className='popup-header'>
+                        <h3>Getting Started</h3>
+                        <div className='close-btn' onClick={hidePopup}>X</div>
+                    </div>
+                    <div className='popup-body'>
+                        <p>
+                            <b>1.</b> Drag and drop the gates and inputs to the canvas.
+                        </p>
+                        <p>
+                            <b>2.</b> Connect the gates and inputs to form a circuit. To connect the cicuit draw a line from the source to the destination.
+                            <br />
+                            The source can be an input or a gate and the destination can be a gate or an output.
+                            <br />
+                            <b>NOTE: You can not draw the connections from destination to source</b>
+                        </p>
+                        <p>
+                            <b>3.</b> Click on the inputs to change their state.
+                        </p>
+                        <p>
+                            <b>4.</b> Green color indicates that the output is set to 1.
+                        </p>
+                        <p>
+                            <b>5.</b> Red color indicates that the output is set to 0.
+                        </p>
+                    </div>
                 </div>
             </div>
             <img ref={gatePLaceholderRef} draggable="false" className='placeholder placeholder-gate' src="/gates/and.png" alt="Placeholder" />
