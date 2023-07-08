@@ -302,9 +302,9 @@ const Circuit = () => {
             // Remove existing connection
             newConnections = newConnections.filter((conn) => conn.endId !== id || conn.inputNumber !== connectionNumber);
         }
-        if (startConnection && startConnection.type !== 'INPUT') {
-            newConnections = newConnections.filter((conn) => conn.startId !== startConnection.id);
-        }
+        // if (startConnection && startConnection.type !== 'INPUT') {
+        //     newConnections = newConnections.filter((conn) => conn.startId !== startConnection.id);
+        // }
         newConnections = [
             ...newConnections,
             {
@@ -658,6 +658,7 @@ const Circuit = () => {
             <img ref={gatePLaceholderRef} draggable="false" className='placeholder placeholder-gate' src="/gates/and.png" alt="Placeholder" />
             <div ref={widgetPlaceholderRef} className='placeholder btn-cus'></div>
             <div ref={errorBoxRef} className="error-message hideErrorMessage"></div>
+            <div className="copy-right">&copy; <a rel='noreferrer' href="https://kaustubhvats-portfolio.netlify.app" target='_blank'>Kaustubh Vats</a></div>
         </div>
     );
 };

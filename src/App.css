@@ -31,6 +31,7 @@
   font-size: small;
   max-width: 100vw;
   overflow: hidden;
+  padding-bottom: 40px;
 }
 .widget-btn{
   display: flex;
@@ -79,6 +80,16 @@
   display: none;
 }
 
+
+.copy-right{
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: x-small;
+  z-index: 30;
+}
+
 .showErrorMessage{
   animation: slide-in 1s ease-in-out;
 }
@@ -112,6 +123,7 @@
   .circuit-controls{
     padding: 10px 30px;
     font-size: x-small;
+    padding-bottom: 25px;
   }
   .placeholder-gate{
     width: 30px;
@@ -134,5 +146,12 @@
   .error-message{
     top: 10px;
   }
+  .copy-right{
+    bottom: 13px;
+  }
   
+}
+.copy-right a{
+  color: blue;
+  text-decoration: none;
 }
