@@ -217,6 +217,7 @@ const Circuit = () => {
             const newWidgets = [...widgets];
             let isUpdated = false;
             let visited = {};
+            let visitedEdges = {};
 
             while (inputIds.length > 0) {
                 const currId = inputIds.shift();
@@ -226,14 +227,14 @@ const Circuit = () => {
                 if (destWidgets && destWidgets.length > 0) {
                     for (let i = 0; i < destWidgets.length; i++) {
                         const target = destWidgets[i].dest;
-                        if (visited[target]) {
+                        if(visitedEdges[currId + '-' + target]) {
                             continue;
                         }
                         inputIds.push(target);
+                        visitedEdges[currId + '-' + target] = true;
 
                         const targetWidget = newWidgets[target - 1];
                         const connectionIndex = destWidgets[i].connectionIndex;
-
                         if (targetWidget.type === 'OUTPUT' && currWidget.state) {
                             newWidgets[targetWidget.id - 1].state = currWidget.state;
                             visited[target] = true;
